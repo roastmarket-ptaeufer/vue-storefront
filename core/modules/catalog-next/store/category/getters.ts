@@ -54,30 +54,8 @@ const getters: GetterTree<CategoryState, RootState> = {
         let filterOptions: FilterVariant[] = []
 
         let uniqueFilterValues = new Set<string>()
-        if (attrToFilter !== 'price') {
-          if (aggregations['agg_terms_' + attrToFilter]) {
-            let buckets = aggregations['agg_terms_' + attrToFilter].buckets
-            if (aggregations['agg_terms_' + attrToFilter + '_options']) {
-              buckets = buckets.concat(aggregations['agg_terms_' + attrToFilter + '_options'].buckets)
-            }
 
-            for (let option of buckets) {
-              uniqueFilterValues.add(toString(option.key))
-            }
-          }
-
-          uniqueFilterValues.forEach(key => {
-            const label = optionLabel(rootState.attribute, { attributeKey: attrToFilter, optionId: key })
-            if (trim(label) !== '') { // is there any situation when label could be empty and we should still support it?
-              filterOptions.push({
-                id: key,
-                label: label,
-                type: attrToFilter
-              })
-            }
-          });
-          filters[attrToFilter] = filterOptions.sort(compareByLabel)
-        } else { // special case is range filter for prices
+        if (aggregations['agg_range_' + attrToFilter]) {
           const currencySign = currentStoreView().i18n.currencySign
 
           if (aggregations['agg_range_' + attrToFilter]) {
@@ -96,6 +74,27 @@ const getters: GetterTree<CategoryState, RootState> = {
             }
             filters[attrToFilter] = filterOptions
           }
+        } else if (aggregations['agg_terms_' + attrToFilter]) {
+          let buckets = aggregations['agg_terms_' + attrToFilter].buckets
+          if (aggregations['agg_terms_' + attrToFilter + '_options']) {
+            buckets = buckets.concat(aggregations['agg_terms_' + attrToFilter + '_options'].buckets)
+          }
+
+          for (let option of buckets) {
+            uniqueFilterValues.add(toString(option.key))
+          }
+
+          uniqueFilterValues.forEach(key => {
+            const label = optionLabel(rootState.attribute, { attributeKey: attrToFilter, optionId: key })
+            if (trim(label) !== '') { // is there any situation when label could be empty and we should still support it?
+              filterOptions.push({
+                id: key,
+                label: label,
+                type: attrToFilter
+              })
+            }
+          });
+          filters[attrToFilter] = filterOptions.sort(compareByLabel)
         }
       }
       // Add sort to available filters
