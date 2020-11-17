@@ -10,6 +10,8 @@ import { Logger } from '@vue-storefront/core/lib/logger';
 import config from 'config'
 import EventBus from '@vue-storefront/core/compatibility/plugins/event-bus'
 import { ProductService } from '@vue-storefront/core/data-resolver/ProductService'
+import deepmerge from 'deepmerge';
+
 import {
   registerProductsMapping,
   doPlatformPricesSync,
@@ -178,7 +180,7 @@ const actions: ActionTree<ProductState, RootState> = {
    */
   setCustomOptions (context, { customOptions, product }) {
     if (customOptions) { // TODO: this causes some kind of recurrency error
-      context.commit(types.PRODUCT_SET_CURRENT, Object.assign({}, product, { product_option: setCustomProductOptionsAsync(context, { product: context.getters.getCurrentProduct, customOptions: customOptions }) }))
+      context.commit(types.PRODUCT_SET_CURRENT, Object.assign({}, deepmerge(product, { product_option: setCustomProductOptionsAsync(context, { product: context.getters.getCurrentProduct, customOptions: customOptions }) })))
     }
   },
   /**
@@ -186,7 +188,7 @@ const actions: ActionTree<ProductState, RootState> = {
    */
   setBundleOptions (context, { bundleOptions, product }) {
     if (bundleOptions) { // TODO: this causes some kind of recurrency error
-      context.commit(types.PRODUCT_SET_CURRENT, Object.assign({}, product, { product_option: setBundleProductOptionsAsync(context, { product: context.getters.getCurrentProduct, bundleOptions: bundleOptions }) }))
+      context.commit(types.PRODUCT_SET_CURRENT, Object.assign({}, deepmerge(product, { product_option: setBundleProductOptionsAsync(context, { product: context.getters.getCurrentProduct, bundleOptions: bundleOptions }) })))
     }
   },
   /**
